@@ -12,4 +12,8 @@ This code has been tested on Python 2.7.5+ and requires the following packages t
 * tensorflow
 * keras
 
+This code function best when running upon a GPU via Tensorflow.
 
+## Native Tensorflow Implementation
+
+There is an experimental implementation of DTC in native tensorflow. This code can be tested by running the *TF-Implementation.py* file via python. Please note that this is only for the multi-class dataset.   
