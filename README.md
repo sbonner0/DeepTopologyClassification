@@ -12,7 +12,7 @@ This code has been tested on Python 2.7.5+ and requires the following packages t
 * tensorflow
 * keras
 
-This code function best when running upon a GPU via Tensorflow.
+This code functions best when running upon a GPU via Tensorflow.
 
 ## Usage
 
