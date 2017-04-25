@@ -3,7 +3,6 @@
 
 from __future__ import absolute_import
 from __future__ import division
-from __future__ import print_function
 
 import numpy as np
 import Utils as ut
@@ -20,7 +19,7 @@ from sklearn.cross_validation import KFold
 from sklearn.preprocessing import LabelEncoder
 from sklearn.grid_search import GridSearchCV
 import pylab as plt
-from keras.utils.visualize_util import plot
+#from keras.utils.visualize_util import plot
 
 # Set the random seed for reproducability
 seed = 7
@@ -30,7 +29,7 @@ def crossValFunc(size, modelfunc, features, labels):
     ''' Setup cross validation '''
 
     kf = KFold(n=size, n_folds=10, shuffle=True, random_state=seed)
-    estimator = KerasClassifier(build_fn=modelfunc, nb_epoch=40, batch_size=256, verbose=0)
+    estimator = KerasClassifier(build_fn=modelfunc, epochs=40, batch_size=256, verbose=0)
     results = cross_val_score(estimator, features, labels, cv=kf)
 
     return results
@@ -47,7 +46,7 @@ def manualCrossValFunc(size, modelfunc, features, labels, nfolds):
         model = unTrainedModel
 
         # Fit the model
-        model.fit(features[train], labels[train], nb_epoch=200, batch_size=256)
+        model.fit(features[train], labels[train], epochs=200, batch_size=256)
         scores = model.evaluate(features[test], labels[test])
         print("%s: %.5f" % (model.metrics_names[1], scores[1] * 100))
         cvscores.append(scores[1] * 100)
@@ -63,7 +62,7 @@ def gridSearch(features, labels):
     init = ['glorot_uniform', 'normal', 'uniform']
     epochs = np.array([100, 150, 200])
     batches = np.array([5, 10, 20])
-    param_grid = dict(optimizer=optimizers, nb_epoch=epochs, batch_size=batches, init=init)
+    param_grid = dict(optimizer=optimizers, epochs=epochs, batch_size=batches, init=init)
     model = KerasClassifier(build_fn=createModel1H)
     grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1)
     grid_result = grid.fit(features, labels)
@@ -116,7 +115,7 @@ def computeModelMetrics(model):
         model = unTrainedModel
 
         # Fit the model
-        model.fit(features[train], e_labels[train], nb_epoch=100, batch_size=256, verbose=1)
+        model.fit(features[train], e_labels[train], epochs=100, batch_size=256, verbose=1)
         scores = model.evaluate(features[test], e_labels[test])
 
         # Predict the labels from the test data
@@ -139,7 +138,7 @@ def createTrainingGraph(RunMulti):
         features, labels, unScaledFeatures = ut.loadData(True)
 
         model = mi.createMode3HlWithDropout()
-        history = model.fit(features, labels, validation_split=0.15, nb_epoch=30, batch_size=2024, verbose=1, shuffle=True)
+        history = model.fit(features, labels, validation_split=0.15, epochs=30, batch_size=2024, verbose=1, shuffle=True)
         print(history.history.keys())
         #plot(model, show_shapes = True, to_file='model.png')
 
@@ -148,7 +147,7 @@ def createTrainingGraph(RunMulti):
         features, labels, unScaledFeatures = ut.loadAnomData(True)
 
         model = bi.binaryModel3h()
-        history = model.fit(features, labels, validation_split=0.15, nb_epoch=30, batch_size=2024, verbose=1, shuffle=True)
+        history = model.fit(features, labels, validation_split=0.15, epochs=30, batch_size=2024, verbose=1, shuffle=True)
         print(history.history.keys())
         #plot(model, show_shapes = True, to_file='model.png')
 
@@ -211,7 +210,7 @@ def createErrorMatrix():
     Y_Train = np_utils.to_categorical(y_train)
 
     # Train the model
-    model.fit(X_train, Y_Train, nb_epoch=2, batch_size=1024, verbose=1)
+    model.fit(X_train, Y_Train, epochs=2, batch_size=1024, verbose=1)
 
     # Predict the labels from the test data
     y_pred = model.predict_classes(X_test)
@@ -295,8 +294,8 @@ def runBinary():
 
 if __name__ == '__main__':
 
-    computeModelMetrics(mi.createMode3HlWithDropout())
+    #computeModelMetrics(mi.createMode3HlWithDropout())
     runMultiLabel()
-    runBinary()
-    createTrainingGraph(True)
-    createErrorMatrix()
+    #runBinary()
+    #createTrainingGraph(True)
+    #createErrorMatrix()
