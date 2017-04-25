@@ -157,7 +157,7 @@ def denseLayersTFSlim(x):
 def lossFunction(logits):
     ''' Loss function using Caterorigal Cross entropy '''
 
-    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits, y, name='crossEnt')
+    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=y, name='crossEnt')
     loss = tf.reduce_mean(cross_entropy, name='crossEnt_mean')
 
     return loss
@@ -167,7 +167,7 @@ logits = denseLayersTFSlim(x)
 
 # Define loss and add the L2 regularazation and optimizer
 loss = lossFunction(logits)
-loss = loss + tf.contrib.losses.get_total_loss()
+loss = loss + tf.losses.get_total_loss()
 
 tf.summary.scalar('loss', loss)
 
@@ -175,8 +175,8 @@ optimizer = tf.train.RMSPropOptimizer(learning_rate=learning_rate)
 global_step = tf.Variable(0, name='globalStep', trainable=False)
 grads = optimizer.compute_gradients(loss)
 apply_gradients = optimizer.apply_gradients(grads, global_step)
-for grad,var in grads:
-   tf.histogram_summary(var.name + '/gradient', grad)
+#for grad,var in grads:
+ #  tf.summary.histogram('/gradient', grad)
 
 # initalise all the variables
 init_op = tf.global_variables_initializer()
@@ -188,7 +188,7 @@ with tf.Session() as sess:
 
     # Setup tensorboard
     merged = tf.summary.merge_all()
-    train_writer = tf.train.SummaryWriter('/tmp/tensorboard' + '/train',
+    train_writer = tf.summary.FileWriter('/tmp/tensorboard' + '/train',
                                       sess.graph)
 
     # Training cycle

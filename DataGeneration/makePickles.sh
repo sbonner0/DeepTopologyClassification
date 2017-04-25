@@ -1,4 +1,4 @@
-declare -a subdirs=("BA" "ER" "FF" "RM" "SW")
+	declare -a subdirs=("BA" "ER" "FF" "RM" "SW")
 wrkdir=$(pwd)
 
 for dir in ${subdirs[@]}
