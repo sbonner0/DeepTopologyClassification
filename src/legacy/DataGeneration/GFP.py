@@ -5,21 +5,22 @@ import numpy as np
 from scipy import stats
 import scipy.spatial.distance
 from numpy.random import *
+import numpy
 
 def implicitExtraction(tempG):
     print("Starting Implicit Extraction")
 
-    # 1) - number of neighbours of each vertex
+    # 1) - number of neigbours of each vertex
     tempG.vertex_properties["dp"] = tempG.degree_property_map("total")
 
-    # 2) - cluster coefficient
+    # 2) - cluster coeffecient
     tempG.vertex_properties["lc"] = local_clustering(tempG)
 
     # 8) Page rank
-    tempG.vertex_properties["pR"] = pagerank(tempG, max_iter=1000)
+    tempG.vertex_properties["pR"] = pagerank(tempG)
 
     # 9) eigenvector
-    tempG.vertex_properties["eV"] = eigenvector(tempG, max_iter=1000)[1]
+    tempG.vertex_properties["eV"] = eigenvector(tempG)[1]
 
     return tempG
 
@@ -35,14 +36,14 @@ def vertexFeatureExtraction(v, tempG, egoNet):
         # This is the out degree of the first neighbour (Assuming no parallel edges)
         twoHopAwayNeighbours += tempG.vp.dp[w]
 
-        # 4) - Average clustering coefficient of the Neighbourhood of node i
+        # 4) - Average clustering coeffecient of the Neihbourhood of node i
         averageNeighbourhoodScore += tempG.vp.lc[w]
 
         # 5) - Ego net
         egoNet[w] = True
 
     # Store the computed results in the property maps of the graph
-    # Fix the possibility of zero degrees
+    # Fix the possibily of zero degrees
     if float(tempG.vp.dp[v]) != 0.0:
         tempG.vp.tHN[v] = ((1.0 / float(tempG.vp.dp[v])) * float(twoHopAwayNeighbours))
         tempG.vp.nCCP[v] = ((1.0 / float(tempG.vp.dp[v])) * float(averageNeighbourhoodScore))
@@ -61,7 +62,7 @@ def globalFeatureExtraction(tempG):
     comp, hist = label_components(tempG)
     numComponents = len(hist)
     d = tempG.degree_property_map("total")
-    num_triangles = int(gc[0] * (d.a * (d.a - 1) / 2).sum() / 3)
+    num_triangles = gc[0] * (d.a * (d.a - 1) / 2).sum() / 3
     total_hist = vertex_hist(tempG, "total")
     degree_max = total_hist[1][len(total_hist[1])-2]
 
@@ -71,14 +72,14 @@ def globalFeatureExtraction(tempG):
 def GFPFeatureExtraction(tempG):
     print("Starting Feature Extraction")
 
-    # Extract the features implicit to graph-tool
+    # Extract the features implcit to graph-tool
     tempG = implicitExtraction(tempG)
 
     # Create the property maps to store results-------------------------------------------------------
     # 3) - Average number of nodes two hops away.....
     tempG.vertex_properties["tHN"] = tempG.new_vertex_property("double")
 
-    # 4) - Average clustering coefficient of the Neighbourhood of node i
+    # 4) - Average clustering coeffecient of the Neihbourhood of node i
     tempG.vertex_properties["nCCP"] = tempG.new_vertex_property("double")
 
     # 5) - Number of edges in i's egonet
@@ -86,7 +87,7 @@ def GFPFeatureExtraction(tempG):
     egoNet = tempG.new_vertex_property("bool")
     egoNet.a = False
 
-    # 6) - Number of out going edges from the neighbourhood of node i
+    # 6) - Number of out going edges from the neigbourhood of node i
     tempG.vertex_properties["oEEG"] = tempG.new_vertex_property("double")
 
     # 7) - Number of neighbours of the egonet
@@ -102,20 +103,21 @@ def GFPFeatureCreation(tempG):
     print("Starting Feature Creation")
     # Create vertex * feature matrix
     # Loop through all the vertices and extract the vertices and attributes then all to a list
-    featuresCollection = []
+    featuresCollection = [ [], [], [], [], [], [] ]
     f = []
 
-    featuresCollection.append(np.array(np.nan_to_num(tempG.vp.dp.a)))
-    featuresCollection.append(np.array(np.nan_to_num(tempG.vp.lc.a)))
-    featuresCollection.append(np.array(np.nan_to_num(tempG.vp.tHN.a)))
-    featuresCollection.append(np.array(np.nan_to_num(tempG.vp.nCCP.a)))
-    featuresCollection.append(np.array(np.nan_to_num(tempG.vp.pR.a)))
-    featuresCollection.append(np.array(np.nan_to_num(tempG.vp.eV.a)))
+    for v in tempG.vertices():
+        featuresCollection[0].append(tempG.vp.dp[v])
+        featuresCollection[1].append(tempG.vp.lc[v])
+        featuresCollection[2].append(tempG.vp.tHN[v])
+        featuresCollection[3].append(tempG.vp.nCCP[v])
+        featuresCollection[4].append(tempG.vp.pR[v])
+        featuresCollection[5].append(tempG.vp.eV[v])
 
     for i in range(6):
-        median = np.median(featuresCollection[i])
-        mean = np.mean(featuresCollection[i])
-        stdev = np.std(featuresCollection[i])
+        median = numpy.median(featuresCollection[i])
+        mean = numpy.mean(featuresCollection[i])
+        stdev = numpy.std(featuresCollection[i])
         skewness = stats.skew(featuresCollection[i])
         kurtosis = stats.kurtosis(featuresCollection[i])
         variance = stats.tvar(featuresCollection[i])
@@ -133,7 +135,7 @@ def GFPSingleFingerprint(tempG):
     # Generate a FingerPrint for a single graph
     tempG = GFPFeatureExtraction(tempG)
     features = GFPFeatureCreation(tempG)
-    gloalFeatures = globalFeatureExtraction(tempG)
+    gloalFeatures = globalFeatureExtraction(G1)
 
     return [features, gloalFeatures]
 
@@ -156,7 +158,4 @@ if __name__ == "__main__":
     print("Testing with random Barabasi networks")
     g = price_network(20000, m = 2, directed = False)
     g2 = price_network(20000, m = 2, directed = False)
-    #print(GFPControl(g, g2))
-
-    res = GFPSingleFingerprint(g)
-    print(res)
+    print GFPControl(g, g2)
