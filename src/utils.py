@@ -5,7 +5,6 @@ from sklearn import preprocessing
 import _pickle as cPickle
 from sklearn.model_selection import cross_validate
 from sklearn.preprocessing import LabelEncoder
-from keras.utils import np_utils
 import matplotlib.pyplot as plt
 import itertools
 
@@ -55,18 +54,6 @@ def splitTestTrain(data, labels, percentage):
 
     return X_train, X_test, y_train, y_test
 
-def encodeLabels(labels):
-    '''Encode the labels using one hot encoding for neural network'''
-
-    encoder = LabelEncoder()
-    encoder.fit(labels)
-    encoded_Y = encoder.transform(labels)
-
-    # convert integers to dummy variables (i.e. one hot encoded)
-    labels = np_utils.to_categorical(encoded_Y)
-
-    return labels
-
 def encodeBinaryLabels(labels):
     '''Encode the labels using one hot encoding for neural network'''
 
@@ -96,19 +83,19 @@ def loadData(ecLabels):
     ''' Function for loading the pickled graph fingerprints '''
 
     # Load Barabasi Dataset
-    BAfeatures, BAlabels = unPickleFingerPrints("Data/BA.pkl")
+    BAfeatures, BAlabels = unPickleFingerPrints("../Data/BA.pkl")
 
     # Load Random Dataset
-    ERfeatures, ERlabels = unPickleFingerPrints("Data/ER.pkl")
+    ERfeatures, ERlabels = unPickleFingerPrints("../Data/ER.pkl")
 
     # Load FF Dataset
-    FFfeatures, FFlabels = unPickleFingerPrints("Data/FF.pkl")
+    FFfeatures, FFlabels = unPickleFingerPrints("../Data/FF.pkl")
 
     # Load R-MAT Dataset
-    RMfeatures, RMlabels = unPickleFingerPrints("Data/RM.pkl")
+    RMfeatures, RMlabels = unPickleFingerPrints("../Data/RM.pkl")
 
     # Load Small World Dataset
-    SWfeatures, SWlabels = unPickleFingerPrints("Data/SW.pkl")
+    SWfeatures, SWlabels = unPickleFingerPrints("../Data/SW.pkl")
 
 
     # Concatenate the datasets together
@@ -128,11 +115,11 @@ def loadAnomData(ecLabels):
     ''' Function for loading the rewired pickled graph fingerprints '''
 
     # Load FF Dataset
-    FFfeatures, FFlabels = unPickleFingerPrints("Data/FF.pkl")
+    FFfeatures, FFlabels = unPickleFingerPrints("../Data/FF.pkl")
     FFscaledFeatures = scaleFP(FFfeatures)
 
     # Load ANOM Dataset
-    ANOMfeatures, ANOMlabels = unPickleFingerPrints("Data/ANOM.pkl")
+    ANOMfeatures, ANOMlabels = unPickleFingerPrints("../Data/ANOM.pkl")
     ANOMscaledFeatures = scaleFP(ANOMfeatures)
 
     # Concatenate the datasets togther
@@ -155,3 +142,9 @@ def takeJustLocal(features):
     ''' Take just the local features from the feature matrix '''
 
     return features[:, :-6]
+
+def get_accuracy(actual, predicted):
+    # actual: cuda longtensor variable
+    # predicted: cuda longtensor variable
+    assert(actual.size(0) == predicted.size(0))
+    return float(actual.eq(predicted).sum()) / actual.size(0)
