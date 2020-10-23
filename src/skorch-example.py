@@ -1,10 +1,13 @@
+import argparse
+
+import numpy as np
 import torch
 import torch.nn.functional as F
 from sklearn.datasets import make_classification
 from sklearn.model_selection import cross_val_predict, train_test_split
 from skorch import NeuralNetClassifier
-import numpy as np
 
+import utils as ut
 from model import DTCNet
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -28,7 +31,7 @@ def computeModelMetrics():
     from sklearn.model_selection import cross_validate
 
     # Load data
-    features, labels, unScaledFeatures = ut.load_data_npy()
+    features, labels, unScaledFeatures = ut.loadData(True)
     features = features.astype(np.float32)
 
     mapping = {key:value for key, value in zip(list(set(labels)), range(len(set(labels))))}
@@ -40,3 +43,17 @@ def computeModelMetrics():
     print("Precision - %.5f (+/- %.5f)" % (np.mean(y_pred['test_precision_micro']), np.std(y_pred['test_precision_micro'])))
     print("Recall - %.5f (+/- %.5f)" % (np.mean(y_pred['test_recall_micro']), np.std(y_pred['test_recall_micro'])))
     print("F1 - %.5f (+/- %.5f)" % (np.mean(y_pred['test_f1_micro']), np.std(y_pred['test_f1_micro'])))
+
+if __name__=='__main__':
+
+    # Training settings
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--epochs', type=int, default=200, help='Number of epochs to train.')
+    parser.add_argument('--batch_size', type=int, default=256, help='Number of epochs to train.')
+    parser.add_argument('--lr', type=float, default=0.0000001, help='Initial learning rate.')
+    parser.add_argument('--weight_decay', type=float, default=5e-4, help='Weight decay (L2 loss on parameters).')   
+    parser.add_argument('--dropout', type=float, default=0.5, help='Dropout rate (1 - keep probability).')
+
+    args = parser.parse_args()
+
+    computeModelMetrics()
