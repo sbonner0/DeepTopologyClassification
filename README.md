@@ -16,6 +16,10 @@ This code has been tested on Python 3.8.5+ and requires the following packages t
 - graph-tool 2.33+
 - networkx 1.5+
 
+Implements are also provided using the Skorch toolkit for pytorch and scikit-learn integration, in which case there is additional requirements:
+
+- skorch 0.8+
+
 ## Datasets
 
 There are two datasets included in the python pickle format. One contains graphs from multiple graph generation methods and as such has multi classes contained within. The second dataset contains just two classes and as such is a binary dataset. 
