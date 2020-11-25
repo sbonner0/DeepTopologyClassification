@@ -40,9 +40,9 @@ def computeModelMetrics():
     y_pred = cross_validate(net, features, labels, scoring=('recall_micro', 'precision_micro', 'f1_micro', 'accuracy'), cv=10)
 
     print(y_pred)
-    print("Precision - %.5f (+/- %.5f)" % (np.mean(y_pred['test_precision_micro']), np.std(y_pred['test_precision_micro'])))
-    print("Recall - %.5f (+/- %.5f)" % (np.mean(y_pred['test_recall_micro']), np.std(y_pred['test_recall_micro'])))
-    print("F1 - %.5f (+/- %.5f)" % (np.mean(y_pred['test_f1_micro']), np.std(y_pred['test_f1_micro'])))
+    print(f"Precision = {np.mean(y_pred['test_precision_micro'])} (+/- {np.std(y_pred['test_precision_micro'])})")
+    print(f"Recall = {np.mean(y_pred['test_recall_micro'])} (+/- {np.std(y_pred['test_recall_micro'])})")
+    print(f"F1 = {np.mean(y_pred['test_f1_micro'])} (+/- {np.std(y_pred['test_f1_micro'])})")
 
 if __name__=='__main__':
 
